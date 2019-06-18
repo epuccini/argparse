@@ -7,7 +7,12 @@
 ;;; -----------------------------------------------------
 
 (defpackage :argparse
-    (:use "COMMON-LISP")
-    (:export
+  (:use "COMMON-LISP")
+  (:export
+   #:add-progname
+   #:add-argument-flag
+   #:add-argument
+   #:parse-arguments
+   #:get-argument
 ))
 
