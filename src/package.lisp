@@ -14,5 +14,6 @@
    #:add-argument
    #:parse-arguments
    #:get-argument
+   #:print-unknown-arguments
 ))
 

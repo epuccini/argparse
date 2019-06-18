@@ -17,8 +17,8 @@
   "Get command line arguments."
   (or
    #+ECL si:*command-args*
-   ;; for development #+SBCL #("--input" "input.txt" "--output" "output.txt" "--username" "epuccini" "--endpoint" "localhost" "--help")
-   #+SBCL sb-ext:*posix-argv*
+   #+SBCL #("--input" "input.txt" "--output" "output.txt" "--username" "epuccini" "--endpoint" "localhost" "--help" "--wrong")
+   ;#+SBCL sb-ext:*posix-argv*
    #+GCL si::*command-args*
    #+LISPWORKS system:*line-arguments-list*
    #+CMU extensions:*command-line-words*
@@ -52,6 +52,20 @@
   (princ *progdesc*)
   (terpri)(terpri)
   (format t "~{~{   ~1,4T~A~2,8T~A~%~}~}" *argument-description*))
+
+(defun 2d-array-to-list (array)
+  (map 'list #'identity array))
+
+(defun print-unknown-arguments ()
+  "Print unknown or wrong arguments in commandline."
+  (let ((cmd-arg (2d-array-to-list (command-line-args))))
+    (mapcar #'(lambda (arg)
+                (destructuring-bind (a v) arg
+                  (setf cmd-arg (remove-if #'(lambda (val) (equal val a)) cmd-arg))
+                  (setf cmd-arg (remove-if #'(lambda (val) (equal val (get-argument a))) cmd-arg))))
+            *arguments*)
+    (format t "Wrong or unknown arguments: ~{~a ~}~%" cmd-arg)
+    (terpri)))
 
 (defun find-arg (arg argv)
   "Find argument and return parameter at once."

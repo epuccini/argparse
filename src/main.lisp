@@ -20,8 +20,10 @@
   (if (get-argument "--help")
       (progn
         (print-help)))
+  (terpri)
+  (print-unknown-arguments)
   ;; print values
-  (terpri)(terpri)
+  (terpri)
   (format t "--input ~a~%" (get-argument "--input"))
   (format t "--output ~a~%" (get-argument "--output"))
   (format t "--username ~a~%" (get-argument "--username"))
