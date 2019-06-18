@@ -8,6 +8,7 @@
 (require 'cl-ppcre)
 
 (defvar *arguments* '())
+(defvar *argument-description* '())
 (defvar *argument-values* '())
 (defvar *progname* nil)
 (defvar *progdesc* nil)
@@ -26,24 +27,30 @@
 (defun add-progname (name desc)
   "Add program name and description."
   (setf *arguments* nil)
+  (setf *argument-description* nil)
   (setf *argument-values* (make-hash-table))
   (setf *progname* name)
   (setf *progdesc* desc))
 
-(defun add-argument-flag (arg)
+(defun add-argument-flag (arg desc)
   "Add argument flag."
-  (push (list arg "") *arguments*))
+  (push (list arg "") *arguments*)
+  (push (list arg desc) *argument-description*))
 
-(defun add-argument (arg)
+(defun add-argument (arg desc)
   "Add argument with one value."
-  (push (list arg (concatenate 'string "[" (subseq arg 2 (length arg)) "]")) *arguments*))
+  (push (list arg
+              (concatenate 'string "[" (subseq arg 2 (length arg)) "]"))
+        *arguments*)
+  (push (list arg desc) *argument-description*))
 
 (defun print-help ()
   "Print help text if set."
   (format t "~a ~{~{~a ~}~}" *progname* *arguments*)
   (terpri)(terpri)
   (princ *progdesc*)
-  (terpri)(terpri))
+  (terpri)(terpri)
+  (format t "~{~{   ~1,4T~A~2,8T~A~%~}~}" *argument-description*))
 
 (defun find-arg (arg argv)
   "Find argument and return parameter at once."
