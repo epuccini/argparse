@@ -17,7 +17,8 @@
   "Get command line arguments."
   (or
    #+ECL si:*command-args*
-   #+SBCL #("--input" "input.txt" "--output" "output.txt" "--username" "epuccini" "--endpoint" "localhost" "--help") ;; sb-ext:*posix-argv*
+   ;; for development #+SBCL #("--input" "input.txt" "--output" "output.txt" "--username" "epuccini" "--endpoint" "localhost" "--help")
+   #+SBCL sb-ext:*posix-argv*
    #+GCL si::*command-args*
    #+LISPWORKS system:*line-arguments-list*
    #+CMU extensions:*command-line-words*
