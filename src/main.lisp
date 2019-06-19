@@ -12,10 +12,10 @@
   ;; init-parser and parse
   (add-progname "rtctool" "A request-response-tool")
   (add-argument-flag "--help" "Display help text flag")
-  (add-argument "--input" "Input file")
-  (add-argument "--output" "Output file")
-  (add-argument "--username" "User login name")
   (add-argument "--endpoint" "RTC endpoint")
+  (add-argument "--username" "User login name")
+  (add-argument "--output" "Output file")
+  (add-argument "--input" "Input file")
   (parse-arguments)
   (if (get-argument "--help")
       (progn

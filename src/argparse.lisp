@@ -17,8 +17,8 @@
   "Get command line arguments."
   (or
    #+ECL si:*command-args*
-   ;#+SBCL #("--input" "input.txt" "--output" "output.txt" "--username" "epuccini" "--endpoint" "localhost" "--help" "--wrong")
-   +SBCL sb-ext:*posix-argv*
+   #+SBCL #("--input" "input.txt" "--output" "output.txt" "--username" "epuccini" "--endpoint" "localhost" "--help" "--wrong")
+   ;#+SBCL sb-ext:*posix-argv*
    #+GCL si::*command-args*
    #+LISPWORKS system:*line-arguments-list*
    #+CMU extensions:*command-line-words*
@@ -61,9 +61,10 @@
   (let ((cmd-arg (2d-array-to-list (command-line-args))))
     (mapcar #'(lambda (arg)
                 (destructuring-bind (a v) arg
-                  (setf cmd-arg (remove-if #'(lambda (val) (equal val a)) cmd-arg))
-                  (setf cmd-arg (remove-if #'(lambda (val) (equal val (get-argument a))) cmd-arg))))
+                    (setf cmd-arg (remove-if #'(lambda (val) (equal val a)) cmd-arg))
+                    (setf cmd-arg (remove-if #'(lambda (val) (equal val (get-argument a))) cmd-arg))))
             *arguments*)
+    (format t "~a argument(s) left~%" (length cmd-arg))
     (format t "Wrong or unknown arguments: ~{~a ~}~%" cmd-arg)
     (terpri)))
 
