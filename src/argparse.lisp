@@ -47,11 +47,11 @@
 
 (defun print-help ()
   "Print help text if set."
-  (format t "~a ~{~{~a ~}~}" *progname* *arguments*)
+  (format t "~a ~{~{~a ~}~}" *progname* (reverse *arguments*))
   (terpri)(terpri)
   (princ *progdesc*)
   (terpri)(terpri)
-  (format t "~{~{   ~1,4T~A~2,8T~A~%~}~}" *argument-description*))
+  (format t "~{~{   ~1,4T~A~2,8T~A~%~}~}" (reverse *argument-description*)))
 
 (defun 2d-array-to-list (array)
   (map 'list #'identity array))
@@ -97,7 +97,7 @@
                     (if (equal v "")
                         (setf (gethash a *argument-values*) f)
                         (setf (gethash a *argument-values*) r)))))
-            *arguments*)))
+            (reverse *arguments*))))
 
 
 (defun get-argument (hsh)
