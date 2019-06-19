@@ -53,12 +53,10 @@
   (terpri)(terpri)
   (format t "~{~{   ~1,4T~A~2,8T~A~%~}~}" (reverse *argument-description*)))
 
-(defun 2d-array-to-list (array)
-  (map 'list #'identity array))
 
 (defun print-unknown-arguments ()
   "Print unknown or wrong arguments in commandline."
-  (let ((cmd-arg (2d-array-to-list (command-line-args))))
+  (let ((cmd-arg (map 'list #'identity (command-line-args))))
     (mapcar #'(lambda (arg)
                 (destructuring-bind (a v) arg
                     (setf cmd-arg (remove-if #'(lambda (val) (equal val a)) cmd-arg))
