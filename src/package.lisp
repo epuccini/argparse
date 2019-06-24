@@ -9,9 +9,11 @@
 (defpackage :argparse
   (:use "COMMON-LISP")
   (:export
-   #:add-progname
+   #:command-line-args
+   #:setup-argument-parser
    #:add-argument-flag
    #:add-argument
+   #:print-help
    #:parse-arguments
    #:get-argument
    #:print-unknown-arguments

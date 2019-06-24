@@ -10,7 +10,7 @@
 
 (defun main ()
   ;; init-parser and parse
-  (add-progname "rtctool" "A request-response-tool")
+  (setup-argument-parser "rtctool" "A request-response-tool")
   (add-argument-flag "--help" "Display help text flag")
   (add-argument "--input" "Input file")
   (add-argument "--output" "Output file")

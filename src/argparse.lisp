@@ -17,16 +17,16 @@
   "Get command line arguments."
   (or
    #+ECL si:*command-args*
-   #+SBCL #("--input" "input.txt" "--output" "output.txt" "--username" "epuccini" "--endpoint" "localhost" "--help" "--wrong")
-   ;#+SBCL sb-ext:*posix-argv*
+   ;#+SBCL #("--input" "input.txt" "--output" "output.txt" "--username" "epuccini" "--endpoint" "localhost" "--help" "--wrong")
+   #+SBCL sb-ext:*posix-argv*
    #+GCL si::*command-args*
    #+LISPWORKS system:*line-arguments-list*
    #+CMU extensions:*command-line-words*
    #+CLISP si:*command-args*
    nil))
 
-(defun add-progname (name desc)
-  "Add program name and description."
+(defun setup-argument-parser (name desc)
+  "Clear arrays and create new hashtable. Add program name and description."
   (setf *arguments* nil)
   (setf *argument-description* nil)
   (setf *argument-values* (make-hash-table))
@@ -62,9 +62,11 @@
                     (setf cmd-arg (remove-if #'(lambda (val) (equal val a)) cmd-arg))
                     (setf cmd-arg (remove-if #'(lambda (val) (equal val (get-argument a))) cmd-arg))))
             (reverse *arguments*))
-    (format t "~a argument(s) left~%" (length cmd-arg))
-    (format t "Wrong or unknown arguments: ~{~a ~}~%" cmd-arg)
-    (terpri)))
+    (if (> (length cmd-arg) 0)
+        (progn
+          (format t "~a argument(s) left~%" (length cmd-arg))
+          (format t "Wrong or unknown arguments: ~{~a ~}~%" cmd-arg)
+          (terpri)))))
 
 (defun find-arg (arg argv)
   "Find argument and return parameter at once."
@@ -79,7 +81,7 @@
                         (setf result b)
                         b))
                   (if (numberp (search arg b))
-                      (progn
+                       (progn
                         (setf flag t)
                         (setf result t)
                         t))
