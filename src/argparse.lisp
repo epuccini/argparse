@@ -17,7 +17,7 @@
   "Get command line arguments."
   (or
    #+ECL si:*command-args*
-   ;#+SBCL #("--input" "input.txt" "--output" "output.txt" "--username" "epuccini" "--endpoint" "localhost" "--help" "--wrong")
+   ;#+SBCL #("argparse.exe" "--input" "input.txt" "--output" "output.txt" "--username" "epuccini" "--endpoint" "localhost" "--help" "--wrong")
    #+SBCL sb-ext:*posix-argv*
    #+GCL si::*command-args*
    #+LISPWORKS system:*line-arguments-list*
@@ -35,15 +35,15 @@
 
 (defun add-argument-flag (arg desc)
   "Add argument flag."
-  (push (list arg "") *arguments*)
-  (push (list arg desc) *argument-description*))
+    (push (list arg "") *arguments*)
+    (push (list arg desc) *argument-description*))
 
 (defun add-argument (arg desc)
   "Add argument with one value."
-  (push (list arg
-              (concatenate 'string "[" (subseq arg 2 (length arg)) "]"))
-        *arguments*)
-  (push (list arg desc) *argument-description*))
+    (push (list arg
+                (concatenate 'string "[" (subseq arg 2 (length arg)) "]"))
+          *arguments*)
+    (push (list arg desc) *argument-description*))
 
 (defun print-help ()
   "Print help text if set."
@@ -57,10 +57,19 @@
 (defun print-unknown-arguments ()
   "Print unknown or wrong arguments in commandline."
   (let ((cmd-arg (map 'list #'identity (command-line-args))))
+    ;; remove progname - with .exe on windows
+    #+Windows
+    (setf cmd-arg
+          (remove-if #'(lambda (val)
+                         (equal val (concatenate 'string *progname* ".exe"))) cmd-arg))
+    (setf cmd-arg (remove-if #'(lambda (val) (equal val *progname*)) cmd-arg))
+    ;; remove existing args - the left ones are unknown
     (mapcar #'(lambda (arg)
-                (destructuring-bind (a v) arg
-                    (setf cmd-arg (remove-if #'(lambda (val) (equal val a)) cmd-arg))
-                    (setf cmd-arg (remove-if #'(lambda (val) (equal val (get-argument a))) cmd-arg))))
+                (destructuring-bind (arg v) arg
+                  (let ((short-arg (subseq arg 1 3)))
+                    (setf cmd-arg (remove-if #'(lambda (val) (equal val arg)) cmd-arg))
+                    (setf cmd-arg (remove-if #'(lambda (val) (equal val short-arg)) cmd-arg))
+                    (setf cmd-arg (remove-if #'(lambda (val) (equal val (get-argument arg))) cmd-arg)))))
             (reverse *arguments*))
     (if (> (length cmd-arg) 0)
         (progn
@@ -71,16 +80,21 @@
 (defun find-arg (arg argv)
   "Find argument and return parameter at once."
   (let ((result nil)
-        (flag nil))
+        (flag nil)
+        (short-arg (subseq arg 1 3)))
     ;; check arg list
     (reduce #'(lambda (a b)
                 (progn
-                  (if (numberp (search arg a))
+                  (if (or
+                       (numberp (search arg a))
+                       (numberp (search short-arg a)))
                       (progn
                         (setf flag t)
                         (setf result b)
                         b))
-                  (if (numberp (search arg b))
+                  (if (or
+                       (numberp (search arg b))
+                       (numberp (search short-arg b)))
                        (progn
                         (setf flag t)
                         (setf result t)
