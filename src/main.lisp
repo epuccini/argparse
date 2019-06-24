@@ -20,8 +20,8 @@
   (if (get-argument "--help")
       (progn
         (print-help)
+        (print-unknown-arguments)
         (exit)))
-  (terpri)
   (print-unknown-arguments)
   ;; print values
   (terpri)

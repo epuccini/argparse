@@ -59,7 +59,7 @@
   (terpri)(terpri)
   (princ *progdesc*)
   (terpri)(terpri)
-  (format t "~{~{   ~1,4T~A~2,8T~A~%~}~}" (reverse *argument-description*)))
+  (format t "~{~{   ~1,4T~A~2,8T~A~%~}~}~%" (reverse *argument-description*)))
 
 
 (defun find-arg (arg argv)
@@ -90,10 +90,13 @@
 (defun parse-arguments ()
   "Parse all given arguments in command-line."
   (let ((cmd-array (command-line-args)))
+    ;; print-help and exit if only program-name given,
+    ;; but not further arguments exist
     (if (= (length cmd-array) 1)
         (progn
           (print-help)
           (exit)))
+    ;; parse
     (mapcar #'(lambda (arg)
                 (destructuring-bind (a v) arg
                   (multiple-value-bind (f r) (find-arg a cmd-array)
