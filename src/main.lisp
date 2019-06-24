@@ -19,7 +19,8 @@
   (parse-arguments)
   (if (get-argument "--help")
       (progn
-        (print-help)))
+        (print-help)
+        (exit)))
   (terpri)
   (print-unknown-arguments)
   ;; print values
