@@ -1,0 +1,1 @@
+(save-lisp-and-die "argparse.exe" :executable t :toplevel 'main :save-runtime-options t)

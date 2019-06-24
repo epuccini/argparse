@@ -6,6 +6,14 @@
 ;;; Author:   Edward Puccini
 ;;; -----------------------------------------------------
 (require 'cl-ppcre)
+(require 'asdf)
+
+#+(or cmu sbcl)
+(setf *load-verbose* nil
+      *load-print* nil
+      asdf:*asdf-verbose* nil
+      *compile-verbose* nil
+      *compile-print* nil)
 
 (defvar *arguments* '())
 (defvar *argument-description* '())
