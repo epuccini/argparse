@@ -105,6 +105,8 @@
 (defun parse-arguments ()
   "Parse all given arguments in command-line."
   (let ((cmd-array (command-line-args)))
+    (if (= (length cmd-array) 1)
+        (print-help))
     (mapcar #'(lambda (arg)
                 (destructuring-bind (a v) arg
                   (multiple-value-bind (f r) (find-arg a cmd-array)
