@@ -15,7 +15,7 @@
    #:add-argument
    #:print-help
    #:parse-arguments
-   #:get-argument
+   #:get-argument-value
    #:print-unknown-arguments
 ))
 

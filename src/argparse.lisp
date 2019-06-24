@@ -119,9 +119,12 @@
     (mapcar #'(lambda (arg)
                 (destructuring-bind (arg v) arg
                   (let ((short-arg (subseq arg 1 3)))
-                    (setf cmd-arg (remove-if #'(lambda (val) (equal val arg)) cmd-arg))
-                    (setf cmd-arg (remove-if #'(lambda (val) (equal val short-arg)) cmd-arg))
-                    (setf cmd-arg (remove-if #'(lambda (val) (equal val (get-argument arg))) cmd-arg)))))
+                    (setf cmd-arg (remove-if #'(lambda (val)
+                                                 (equal val arg)) cmd-arg))
+                    (setf cmd-arg (remove-if #'(lambda (val)
+                                                 (equal val short-arg)) cmd-arg))
+                    (setf cmd-arg (remove-if #'(lambda (val)
+                                                 (equal val (get-argument-value arg))) cmd-arg)))))
             (reverse *arguments*))
     (if (> (length cmd-arg) 0)
         (progn
@@ -131,6 +134,6 @@
           (exit)))))
 
 
-(defun get-argument (hsh)
+(defun get-argument-value (hsh)
   "Get hash argument value."
   (gethash hsh *argument-values*))
