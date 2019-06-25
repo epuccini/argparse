@@ -10,12 +10,12 @@
 
 (defun main ()
   ;; init-parser and parse
-  (setup-argument-parser "argparse" "A request-response-tool")
-  (add-argument-flag "--list" "List flag" 1) ;; help flag is group 0
-  (add-argument "--input" "Input file" 1)
-  (add-argument "--output" "Output file" 1)
-  (add-argument "--username" "User login name" 2)
-  (add-argument "--endpoint" "RTC endpoint" 2)
+  (setup-argument-parser "argparse" "An argument parser for commandline applications.")
+  (add-argument-flag "--list" "List flag" "Listing")
+  (add-argument "--input" "Input file" "Input")
+  (add-argument "--output" "Output file" "Output")
+  (add-argument "--username" "User login name" "Output")
+  (add-argument "--endpoint" "RTC endpoint" "Output")
   (parse-arguments)
   (handle-unknown-arguments)
   (handle-missing-arguments)
