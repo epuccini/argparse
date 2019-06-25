@@ -46,13 +46,15 @@
   (add-argument-flag "--help" "Display help text flag" "Verbose"))
 
 (defun add-argument-flag (arg desc group)
-  "Add argument flag. Group to combine arguments."
+  "Add argument flag. Group to combine arguments 
+which should all have to be set at once."
     (push (list arg "") *arguments*)
     (push (list arg desc) (gethash group *argument-description*))
     (push arg (gethash group *groups*)))
 
 (defun add-argument (arg desc group)
-  "Add argument with one value. Group to combine arguments."
+  "Add argument with one value. Group to combine arguments 
+which should all have to be set at once."
     (push (list arg
                 (concatenate 'string "[" (subseq arg 2 (length arg)) "]"))
           *arguments*)
