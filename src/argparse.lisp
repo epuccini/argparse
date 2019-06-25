@@ -144,11 +144,11 @@
 (defun identify-group (arg)
   "Check which argument belongs to group."
   (let ((max (hash-table-count *groups*)))
-    (loop for cnt in (range 0 max) do
-         (if (= 1 (length (remove-if-not #'(lambda (e)
-                                             (or (equal e arg)
-                                                 (equal (subseq e 1 3) arg)))
-                                         (gethash cnt *groups*))))
+    (loop for cnt in (range 1 max) do
+         (if (remove-if-not #'(lambda (e)
+                                (or (equal e arg)
+                                    (equal (subseq e 1 3) arg)))
+                            (gethash cnt *groups*))
              (return cnt)))))
          
 (defun handle-missing-arguments ()
