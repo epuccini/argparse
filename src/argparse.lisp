@@ -26,7 +26,6 @@
   "Get command line arguments."
   (or
    #+ECL si:*command-args*
-   ;#+SBCL #("argparse.exe" "--input" "input.txt" "--output" "output.txt" "--username" "epuccini" "--endpoint" "localhost" "--help" "--wrong")
    #+SBCL sb-ext:*posix-argv*
    #+GCL si::*command-args*
    #+LISPWORKS system:*line-arguments-list*
