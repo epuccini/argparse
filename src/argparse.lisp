@@ -89,18 +89,25 @@
 
 (defun parse-arguments ()
   "Parse all given arguments in command-line."
-  (let ((cmd-array (command-line-args)))
-    ;; parse
-    (mapcar #'(lambda (arg)
-                (destructuring-bind (a v) arg
-                  (multiple-value-bind (f r) (find-arg a cmd-array)
-                    (if (equal v "")
-                        (setf (gethash a *argument-values*) f)
-                        (setf (gethash a *argument-values*) r)))))
-            (reverse *arguments*))))
+  (handler-case
+      (let ((cmd-array (command-line-args)))
+        ;; parse
+        (mapcar #'(lambda (arg)
+                    (destructuring-bind (a v) arg
+                      (multiple-value-bind (f r) (find-arg a cmd-array)
+                        (if (equal v "")
+                            (setf (gethash a *argument-values*) f)
+                            (setf (gethash a *argument-values*) r)))))
+                (reverse *arguments*))
+        (if (get-argument-value "--help")
+            (progn
+              (print-help)
+              (exit))))
+  (error (condition)
+         (format t "Error while parsing arguments, condition ~a~%" condition))))
 
 
-(defun print-unknown-arguments ()
+(defun handle-unknown-arguments ()
   "Print unknown or wrong arguments in commandline. Exit on error."
   (let ((cmd-arg (map 'list #'identity (command-line-args))))
     ;; remove progname - with .exe on windows
