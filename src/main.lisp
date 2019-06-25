@@ -11,7 +11,6 @@
 (defun main ()
   ;; init-parser and parse
   (setup-argument-parser "argparse" "A request-response-tool")
-  (add-argument-flag "--help" "Display help text flag")
   (add-argument "--input" "Input file")
   (add-argument "--output" "Output file")
   (add-argument "--username" "User login name")

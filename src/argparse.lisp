@@ -34,12 +34,13 @@
    nil))
 
 (defun setup-argument-parser (name desc)
-  "Clear arrays and create new hashtable. Add program name and description."
+  "Clear arrays and create new hashtable. Add program name and description. Add help argument."
   (setf *arguments* nil)
   (setf *argument-description* nil)
   (setf *argument-values* (make-hash-table))
   (setf *progname* name)
-  (setf *progdesc* desc))
+  (setf *progdesc* desc)
+  (add-argument-flag "--help" "Display help text flag"))
 
 (defun add-argument-flag (arg desc)
   "Add argument flag."
