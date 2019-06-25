@@ -17,8 +17,8 @@
   (add-argument "--username" "User login name" "Output")
   (add-argument "--endpoint" "RTC endpoint" "Output")
   (parse-arguments)
-  (handle-unknown-arguments)
-  (handle-missing-arguments)
+  (handle-unknown-arguments) ;; call this function if you want to print unknown args
+  (handle-missing-arguments) ;; call this function if you want to restrict args to groups
   ;; print values
   (terpri)
   (format t "--list ~a~%" (get-argument-value "--list"))
