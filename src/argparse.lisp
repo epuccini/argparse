@@ -18,7 +18,7 @@
       *compile-print* nil)
 
 (defvar *arguments* '())
-(defvar *argument-description* '())
+(defvar *argument-description* nil)
 (defvar *argument-values* nil)
 (defvar *progname* nil)
 (defvar *progdesc* nil)
