@@ -15,7 +15,7 @@
   (add-argument "--input" "Input file" "Input")
   (add-argument "--output" "Output file" "Output")
   (add-argument "--username" "User login name" "Output")
-  (add-argument "--endpoint" "RTC endpoint" "Output")
+  (add-argument "--endpoint" "Endpoint" "Output")
   (parse-arguments)
   (handle-unknown-arguments) ;; call this function if you want to print unknown args
   (handle-missing-arguments) ;; call this function if you want to restrict args to groups

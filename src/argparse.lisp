@@ -58,17 +58,21 @@ which should all have to be set at once."
     (push (list arg
                 (concatenate 'string "[" (subseq arg 2 (length arg)) "]"))
           *arguments*)
-    (push (list arg desc) (gethash group *argument-description*))
+    (push (list arg desc)
+          (gethash group *argument-description*))
     (push arg (gethash group *groups*)))
 
 (defun print-help ()
   "Print help text if set."
-  (format t "Usage: ~a ~{~{~a ~}~}~%~%~a~%~%" *progname* (reverse *arguments*) *progdesc*)
   (let ((keys (reverse
                (alexandria:hash-table-keys *argument-description*))))
+    (format t "Usage: ~a ~{~{~a ~}~}~%~%" *progname* (reverse *arguments*))
+                                        ;    (format t "Usage: ~a ~{[~a-options] ~}~%~%" *progname* keys)
+    (format t "~a~%~%" *progdesc*)
     (loop for key in keys do
          (format t "~a:~%" key)
-         (format t "~{~{   ~1,4T~A~2,8T~A~%~}~}~%" (gethash key *argument-description*)))))
+         (format t "~{~{   ~1,4T~A ~2,8T~A~%~}~}~%"
+                 (gethash key *argument-description*)))))
 
 (defun find-arg (arg argv)
   "Find argument and return parameter at once."
