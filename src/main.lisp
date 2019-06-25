@@ -17,7 +17,7 @@
   (add-argument "--username" "User login name")
   (add-argument "--endpoint" "RTC endpoint")
   (parse-arguments)
-  (if (get-argument "--help")
+  (if (or (= (number-of-args) 1) (get-argument-value "--help"))
       (progn
         (print-help)
         (print-unknown-arguments)
@@ -25,12 +25,12 @@
   (print-unknown-arguments)
   ;; print values
   (terpri)
-  (format t "--input ~a~%" (get-argument "--input"))
-  (format t "--output ~a~%" (get-argument "--output"))
-  (format t "--username ~a~%" (get-argument "--username"))
-  (format t "--endpoint ~-a~%" (get-argument "--endpoint"))
-  (format t "--help ~a~%" (get-argument "--help"))
+  (format t "--input ~a~%" (get-argument-value "--input"))
+  (format t "--output ~a~%" (get-argument-value "--output"))
+  (format t "--username ~a~%" (get-argument-value "--username"))
+  (format t "--endpoint ~-a~%" (get-argument-value "--endpoint"))
+  (format t "--help ~a~%" (get-argument-value "--help"))
   ;; not existent value
-  (format t "--test ~a~%" (get-argument "--test")))
+  (format t "--test ~a~%" (get-argument-value "--test")))
         ;(exit))))
   

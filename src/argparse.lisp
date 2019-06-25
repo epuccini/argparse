@@ -90,12 +90,6 @@
 (defun parse-arguments ()
   "Parse all given arguments in command-line."
   (let ((cmd-array (command-line-args)))
-    ;; print-help and exit if only program-name given,
-    ;; but not further arguments exist
-    (if (= (length cmd-array) 1)
-        (progn
-          (print-help)
-          (exit)))
     ;; parse
     (mapcar #'(lambda (arg)
                 (destructuring-bind (a v) arg
@@ -107,7 +101,7 @@
 
 
 (defun print-unknown-arguments ()
-  "Print unknown or wrong arguments in commandline."
+  "Print unknown or wrong arguments in commandline. Exit on error."
   (let ((cmd-arg (map 'list #'identity (command-line-args))))
     ;; remove progname - with .exe on windows
     #+Windows
@@ -137,3 +131,7 @@
 (defun get-argument-value (hsh)
   "Get hash argument value."
   (gethash hsh *argument-values*))
+
+(defun number-of-args ()
+  (let ((cmd-array (command-line-args)))
+    (length cmd-array)))

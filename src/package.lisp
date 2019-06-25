@@ -17,5 +17,5 @@
    #:parse-arguments
    #:get-argument-value
    #:print-unknown-arguments
-))
+   #:number-of-args))
 
