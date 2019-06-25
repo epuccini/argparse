@@ -5,6 +5,7 @@
 ;;; Date:     09:18:24 of Tuesday, 6/18/2019 (GMT+1)
 ;;; Author:   Edward Puccini
 ;;; -----------------------------------------------------
+
 (require 'cl-ppcre)
 (require 'asdf)
 
@@ -122,6 +123,7 @@
     ;; remove existing args - the left ones are unknown
     (mapcar #'(lambda (arg)
                 (destructuring-bind (arg v) arg
+                  (declare (ignore v))
                   (let ((short-arg (subseq arg 1 3)))
                     (setf cmd-arg (remove-if #'(lambda (val)
                                                  (equal val arg)) cmd-arg))
@@ -137,13 +139,10 @@
           (terpri)
           (exit)))))
 
-(defun range (start end)
-  (loop for i from start below end collect i))
-
 (defun identify-group (arg)
   "Check which argument belongs to group."
   (let ((max (hash-table-count *groups*)))
-    (loop for cnt in (range 1 max) do
+    (loop for cnt from 1 below max do
          (if (remove-if-not #'(lambda (e)
                                 (or (equal e arg)
                                     (equal (subseq e 1 3) arg)))
