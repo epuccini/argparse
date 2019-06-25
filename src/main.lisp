@@ -11,6 +11,7 @@
 (defun main ()
   ;; init-parser and parse
   (setup-argument-parser "argparse" "A request-response-tool")
+  (add-argument-flag "--list" "List flag")
   (add-argument "--input" "Input file")
   (add-argument "--output" "Output file")
   (add-argument "--username" "User login name")
@@ -19,6 +20,7 @@
   (handle-unknown-arguments)
   ;; print values
   (terpri)
+  (format t "--list ~a~%" (get-argument-value "--list"))
   (format t "--input ~a~%" (get-argument-value "--input"))
   (format t "--output ~a~%" (get-argument-value "--output"))
   (format t "--username ~a~%" (get-argument-value "--username"))
