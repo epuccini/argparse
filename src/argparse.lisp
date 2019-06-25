@@ -17,7 +17,7 @@
 
 (defvar *arguments* '())
 (defvar *argument-description* '())
-(defvar *argument-values* '())
+(defvar *argument-values* nil)
 (defvar *progname* nil)
 (defvar *progdesc* nil)
 
@@ -107,7 +107,6 @@
   (error (condition)
          (format t "Error while parsing arguments, condition ~a~%" condition))))
 
-
 (defun handle-unknown-arguments ()
   "Print unknown or wrong arguments in commandline. Exit on error."
   (let ((cmd-arg (map 'list #'identity (command-line-args))))
@@ -135,11 +134,11 @@
           (terpri)
           (exit)))))
 
-
 (defun get-argument-value (hsh)
   "Get hash argument value."
   (gethash hsh *argument-values*))
 
 (defun number-of-args ()
+  "Get number of arguments from commandline."
   (let ((cmd-array (command-line-args)))
     (length cmd-array)))
