@@ -181,22 +181,23 @@ which should all have to be set at once."
          (cmd-args (cdr (command-line-args)))
          (group (identify-group first-arg))
          (missing-args '())
-         (group-args '()))
+         (group-args nil))
          (mapcar #'(lambda (lst)
                      (destructuring-bind (a f d v) lst
                        (declare (ignore f d))
                        (if a
-                           (push (subseq a 1 3) group-args))
-                       (if v
-                           (push v group-args)))) (gethash group *argument-data*))
+                           (push a group-args))
+                       (if  (typep v 'sequence) 
+                           (push v group-args))))
+                 (gethash group *argument-data*))
          (setf missing-args
                (remove-if #'(lambda (e)
                               (loop for arg in cmd-args do
-                                   (if (equal e arg)
-                                       (return t))
-                                   (if (and (> (length arg) 2)
-                                            (equal e (subseq arg 1 3)))
-                                       (return t)))) group-args))
+                                   (if (or
+                                        (equal e arg)
+                                        (equal e (get-full-argument arg)))
+                                       (return t))))
+                          group-args))
     (if (> (length missing-args) 0)
         (progn
           (format t "Missing arguments: ~{~a ~}~%" (reverse missing-args))
@@ -212,6 +213,19 @@ which should all have to be set at once."
                        (declare (ignore f d))
                        (if (equal a arg)
                            (return v))))
+                 (gethash group *argument-data*)))))
+
+
+(defun get-full-argument (short-arg)
+  "Get hash argument from shortcut arg."
+  (let ((keys (alexandria:hash-table-keys *argument-data*)))
+    ;; parse
+    (loop for group in keys do
+         (mapcar #'(lambda (lst)
+                     (destructuring-bind (a f d v) lst
+                       (declare (ignore f d v))
+                       (if (equal (subseq a 1 3) short-arg)
+                           (return a))))
                  (gethash group *argument-data*)))))
 
 (defun number-of-args ()
