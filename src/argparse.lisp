@@ -75,7 +75,7 @@ which should all have to be set at once."
         (format t "~%~%~a~%" *program-desc*)
         (loop for key in keys do
              (format t "~%~a:~%" key)
-             (loop for pair in (gethash key *argument-description*) do
+             (loop for pair in (reverse (gethash key *argument-description*)) do
                   (destructuring-bind (arg desc) pair
                     (format t "~1,4T~a, ~A ~3,8T~A~%" (subseq arg 1 3) arg desc)))))))
 
@@ -183,7 +183,7 @@ which should all have to be set at once."
                                   (gethash group *groups*))))
     (if (> (length missing-args) 0)
         (progn
-          (format t "Missing arguments: ~{~a ~}~%" missing-args)
+          (format t "Missing arguments: ~{~a ~}~%" (reverse missing-args))
           (exit)))))
 
 (defun get-argument-value (hsh)

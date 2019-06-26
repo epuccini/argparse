@@ -23,10 +23,10 @@
                          "An argument parser for commandline applications."
                          "v1.0.2.3")
   (add-argument-flag "--list" "List flag" "Listing")
-  (add-argument "--input" "Input file" "Input")
-  (add-argument "--output" "Output file" "Output")
-  (add-argument "--username" "User login name" "Output")
-  (add-argument "--endpoint" "Endpoint" "Output")
+  (add-argument "--input" "Input file" "Convert")
+  (add-argument "--output" "Output file" "Convert")
+  (add-argument "--username" "User login name" "Convert")
+  (add-argument "--endpoint" "Endpoint" "Convert")
   (parse-arguments)
   (handle-unknown-arguments) ;; call this function if you want to print unknown args
   (handle-missing-arguments) ;; call this function if you want to restrict args to groups
