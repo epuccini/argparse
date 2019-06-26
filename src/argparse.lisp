@@ -55,8 +55,8 @@ which should all have to be set at once."
         ;; print usage line
         (format t "Usage: ~a " *program-name*)
         (loop for group in keys do
-             (loop for quatruple in (gethash group *argument-data*) do
-                  (destructuring-bind (arg field desc value) quatruple
+             (loop for quadruple in (gethash group *argument-data*) do
+                  (destructuring-bind (arg field desc value) quadruple
                     (declare (ignore desc value))
                     (if (> (length field) 0)
                         (format t "[~a ~a] " arg field)
@@ -65,8 +65,8 @@ which should all have to be set at once."
         (format t "~%~%~a~%" *program-desc*)
         (loop for key in keys do
              (format t "~%~a:~%" key)
-             (loop for quatruple in (reverse (gethash key *argument-data*)) do
-                  (destructuring-bind (arg field desc value) quatruple
+             (loop for quadruple in (reverse (gethash key *argument-data*)) do
+                  (destructuring-bind (arg field desc value) quadruple
                     (declare (ignore field value))
                     (format t "~1,4T~a, ~A ~3,8T~A~%" (subseq arg 1 3) arg desc)))))))
 
@@ -106,20 +106,19 @@ which should all have to be set at once."
             (keys (alexandria:hash-table-keys *argument-data*)))
         ;; parse
         (loop for group in keys do
-             (mapcar #'(lambda (arg)
-                         (if arg
-                             (progn
-                               (setf (gethash group *argument-data*)
-                                     (remove-if #'(lambda (a) (equal a arg))
-                                          (gethash group *argument-data*)))
-                               (destructuring-bind (a f d v) arg
-                                 (declare (ignore d v))
-                                 (multiple-value-bind (flag value) (find-arg a cmd-array)
-                                   (if (equal f "")
-                                       (setf (nth 3 arg) flag)
-                                       (setf (nth 3 arg) value))
-                                   (push arg (gethash group *argument-data*)))))))
-                     (gethash group *argument-data*)))
+             (mapcar #'(lambda (lst)
+                         (progn
+                           (setf (gethash group *argument-data*)
+                                 (remove-if #'(lambda (a) (equal a lst))
+                                            (gethash group *argument-data*)))
+                           (destructuring-bind (a f d v) lst
+                             (declare (ignore d v))
+                             (multiple-value-bind (flag value) (find-arg a cmd-array)
+                               (if (equal f "")
+                                   (setf (nth 3 lst) flag)
+                                   (setf (nth 3 lst) value))
+                               (push lst (gethash group *argument-data*))))))
+             (gethash group *argument-data*)))
         (if (get-argument-value "--help")
             (progn
               (print-help)
