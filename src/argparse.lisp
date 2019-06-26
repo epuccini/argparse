@@ -17,11 +17,13 @@
       *compile-verbose* nil
       *compile-print* nil)
 
+(defvar *help-message* nil)
 (defvar *arguments* '())
 (defvar *argument-description* nil)
 (defvar *argument-values* nil)
-(defvar *progname* nil)
-(defvar *progdesc* nil)
+(defvar *program-name* nil)
+(defvar *program-desc* nil)
+(defvar *program-version*)
 (defvar *groups* nil)
 
 (defun command-line-args ()
@@ -35,15 +37,17 @@
    #+CLISP si:*command-args*
    nil))
 
-(defun setup-argument-parser (name desc)
+(defun setup-argument-parser (name desc version)
   "Clear arrays and create new hashtable. Add program name and description. Add help argument."
   (setf *arguments* nil)
   (setf *argument-description* (make-hash-table))
   (setf *argument-values* (make-hash-table))
-  (setf *progname* name)
-  (setf *progdesc* desc)
+  (setf *program-name* name)
+  (setf *program-desc* desc)
   (setf *groups* (make-hash-table))
-  (add-argument-flag "--help" "Display help text flag" "Verbose"))
+  (setf *program-version* version)
+  (add-argument-flag "--help" "Display help text flag" "Verbose")
+  (add-argument-flag "--version" "Display program version" "Application"))
 
 (defun add-argument-flag (arg desc group)
   "Add argument flag. Group to combine arguments 
@@ -63,16 +67,21 @@ which should all have to be set at once."
     (push arg (gethash group *groups*)))
 
 (defun print-help ()
-  "Print help text if set."
-  (let ((keys (reverse
-               (alexandria:hash-table-keys *argument-description*))))
-    (format t "Usage: ~a ~{~{~a ~}~}~%~%" *progname* (reverse *arguments*))
-                                        ;    (format t "Usage: ~a ~{[~a-options] ~}~%~%" *progname* keys)
-    (format t "~a~%~%" *progdesc*)
-    (loop for key in keys do
-         (format t "~a:~%" key)
-         (format t "~{~{   ~1,4T~A ~2,8T~A~%~}~}~%"
-                 (gethash key *argument-description*)))))
+  "Print help text if set. Otherwise auto list options."
+  (if *help-message*
+      (format t "~a~%" *help-message*)
+      (let ((keys (reverse
+                   (alexandria:hash-table-keys *argument-description*))))
+        (format t "Usage: ~a ~{~{~a ~}~}~%~%" *program-name* (reverse *arguments*))
+        (format t "~a~%~%" *program-desc*)
+        (loop for key in keys do
+             (format t "~a:~%" key)
+             (format t "~{~{   ~1,4T~A ~2,8T~A~%~}~}~%"
+                     (gethash key *argument-description*))))))
+
+(defun print-version ()
+  "Print version string."
+  (format t "~a: ~a~%" *program-name* *program-version*))
 
 (defun find-arg (arg argv)
   "Find argument and return parameter at once."
@@ -114,6 +123,10 @@ which should all have to be set at once."
         (if (get-argument-value "--help")
             (progn
               (print-help)
+              (exit)))
+        (if (get-argument-value "--version")
+            (progn
+              (print-version)
               (exit))))
   (error (condition)
          (format t "Error while parsing arguments, condition ~a~%" condition))))
@@ -121,12 +134,12 @@ which should all have to be set at once."
 (defun handle-unknown-arguments ()
   "Print unknown or wrong arguments in commandline. Exit on error."
   (let ((cmd-arg (map 'list #'identity (command-line-args))))
-    ;; remove progname - with .exe on windows
+    ;; remove program-name - with .exe on windows
     #+Windows
     (setf cmd-arg
           (remove-if #'(lambda (val)
-                         (equal val (concatenate 'string *progname* ".exe"))) cmd-arg))
-    (setf cmd-arg (remove-if #'(lambda (val) (equal val *progname*)) cmd-arg))
+                         (equal val (concatenate 'string *program-name* ".exe"))) cmd-arg))
+    (setf cmd-arg (remove-if #'(lambda (val) (equal val *program-name*)) cmd-arg))
     ;; remove existing args - the left ones are unknown
     (mapcar #'(lambda (arg)
                 (destructuring-bind (arg v) arg

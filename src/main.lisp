@@ -10,7 +10,10 @@
 
 (defun main ()
   ;; init-parser and parse
-  (setup-argument-parser "argparse" "An argument parser for commandline applications.")
+  ;; set custom help message by setting *help-message*
+  (setup-argument-parser "argparse"
+                         "An argument parser for commandline applications."
+                         "v1.0.2.2")
   (add-argument-flag "--list" "List flag" "Listing")
   (add-argument "--input" "Input file" "Input")
   (add-argument "--output" "Output file" "Output")

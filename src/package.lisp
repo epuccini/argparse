@@ -18,5 +18,6 @@
    #:get-argument-value
    #:handle-unknown-arguments
    #:handle-missing-arguments
-   #:number-of-args))
+   #:number-of-args
+   #:*help-message*))
 
