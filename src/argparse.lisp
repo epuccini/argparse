@@ -38,8 +38,8 @@
   (setf *program-desc* desc)
   (setf *groups* (make-hash-table))
   (setf *program-version* version)
-  (add-argument-flag "--help" "Display help text flag" "Verbose")
-  (add-argument-flag "--version" "Display program version" "Application"))
+  (add-argument-flag "--help" "Shows this help message and exit" "Verbose")
+  (add-argument-flag "--version" "Show program version and exit" "Application"))
 
 (defun add-argument-flag (arg desc group)
   "Add argument flag. Group to combine arguments 
@@ -59,17 +59,25 @@ which should all have to be set at once."
     (push arg (gethash group *groups*)))
 
 (defun print-help ()
-  "Print help text if set. Otherwise auto list options."
+  "Print help text if set. Otherwise auto-generated help text."
   (if *help-message*
       (format t "~a~%" *help-message*)
       (let ((keys (reverse
                    (alexandria:hash-table-keys *argument-description*))))
-        (format t "Usage: ~a ~{~{~a ~}~}~%~%" *program-name* (reverse *arguments*))
-        (format t "~a~%~%" *program-desc*)
+        ;; print usage line
+        (format t "Usage: ~a " *program-name*)
+        (loop for pair in (reverse *arguments*) do
+             (destructuring-bind (arg val) pair
+               (if (> (length val) 0)
+                   (format t "[~a ~a] " arg val)
+                   (format t "[~a] " arg))))
+        ;; print group of arguments and descriptions
+        (format t "~%~%~a~%" *program-desc*)
         (loop for key in keys do
-             (format t "~a:~%" key)
-             (format t "~{~{   ~1,4T~A ~2,8T~A~%~}~}~%"
-                     (gethash key *argument-description*))))))
+             (format t "~%~a:~%" key)
+             (loop for pair in (gethash key *argument-description*) do
+                  (destructuring-bind (arg desc) pair
+                    (format t "~1,4T~a, ~A ~3,8T~A~%" (subseq arg 1 3) arg desc)))))))
 
 (defun print-version ()
   "Print version string."
