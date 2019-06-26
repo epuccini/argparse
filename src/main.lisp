@@ -7,6 +7,14 @@
 ;;; -----------------------------------------------------
 
 (require 'argparse)
+(require 'asdf)
+
+#+(or cmu sbcl)
+(setf *load-verbose* nil
+      *load-print* nil
+      asdf:*asdf-verbose* nil
+      *compile-verbose* nil
+      *compile-print* nil)
 
 (defun main ()
   ;; init-parser and parse

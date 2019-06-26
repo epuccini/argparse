@@ -8,14 +8,6 @@
 
 (require 'cl-ppcre)
 (require 'alexandria)
-(require 'asdf)
-
-#+(or cmu sbcl)
-(setf *load-verbose* nil
-      *load-print* nil
-      asdf:*asdf-verbose* nil
-      *compile-verbose* nil
-      *compile-print* nil)
 
 (defvar *help-message* nil)
 (defvar *arguments* '())
