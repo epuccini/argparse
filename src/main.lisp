@@ -21,7 +21,7 @@
   ;; set custom help message by setting *help-message*
   (setup-argument-parser "argparse"
                          "An argument parser for commandline applications."
-                         "v1.0.2.1")
+                         "v1.0.2.3")
   (add-argument-flag "--list" "List flag" "Listing")
   (add-argument "--input" "Input file" "Input")
   (add-argument "--output" "Output file" "Output")
