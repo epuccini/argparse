@@ -43,14 +43,6 @@ which should all have to be set at once."
       (push (list arg (concatenate 'string "[" (subseq arg 2 (length arg)) "]") desc "")
             (gethash group *argument-data*))))
 
-
-(defun setup-argparse (name desc version &rest args)
-  (setup-argument-parser name desc version)
-  (loop for arg in args do
-        (destructuring-bind (nm dc vl ty) arg
-         (add-argument nm dc vl ty)))
-  (parse-arguments))
-
 (defmacro with-arguments (name desc version &rest args)
   `(progn
      (setup-argument-parser ,name ,desc ,version)
