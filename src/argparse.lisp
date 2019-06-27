@@ -26,29 +26,40 @@
    #+CLISP si:*command-args*
    nil))
 
-(defun setup-argument-parser (name desc version)
+(defun setup-argument-parser (&key (name "") (description "") ( version ""))
   "Clear arrays and create new hashtable. Add program name and description. 
 Add help argument."
   (setf *program-name* name)
-  (setf *program-desc* desc)
+  (setf *program-desc* description)
   (setf *program-version* version)
-  (add-argument "--help" "Shows this help message and exit" "Verbose" 'flag)
-  (add-argument "--version" "Show program version and exit" "Application" 'flag))
+  (add-argument :argument "--help"
+                :description "Shows this help message and exit"
+                :group "Verbose"
+                :type 'flag)
+  (add-argument :argument "--version"
+                :description "Show program version and exit"
+                :group "Application"
+                :type 'flag))
 
-(defun add-argument (arg desc group type)
+(defun add-argument (&key (argument "") (description "") (group "") (type ""))
   "Add argument with one value. Group to combine arguments 
 which should all have to be set at once."
   (if (equal type 'flag)
-      (push (list arg "" desc "") (gethash group *argument-data*))
-      (push (list arg (concatenate 'string "[" (subseq arg 2 (length arg)) "]") desc "")
-            (gethash group *argument-data*))))
+      (push (list argument "" description "") (gethash group *argument-data*))
+      (push (list argument
+                  (concatenate 'string
+                               "[" (subseq argument 2 (length argument)) "]") description "")
+            (gethash group *argument-data*)))
+  nil)
 
-(defmacro with-arguments (name desc version &rest args)
+(defmacro with-arguments (name description version &body args)
   `(progn
-     (setup-argument-parser ,name ,desc ,version)
+     (setup-argument-parser :name ,name :description ,description :version ,version)
      ,@(loop for 'arg in args collect
-            (destructuring-bind (ag dc gp tp) arg
-               `(add-argument ,ag ,dc ,gp ,tp)))
+            `(add-argument :argument (getf (quote ,arg) :argument)
+                           :description (getf (quote ,arg) :description)
+                           :group (getf (quote ,arg) :group)
+                           :type (getf (quote ,arg) :type)))
      (parse-arguments)))
 
 (defun print-help ()

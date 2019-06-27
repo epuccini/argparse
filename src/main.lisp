@@ -20,12 +20,29 @@
   ;; init-parser and parse
   ;; set custom help message by setting *help-message*
   (with-arguments
-      "argparse" "An argument parser for commandline applications." "v1.0.3.0"
-     '("--list" "List flag" "Listing" 'flag)
-     '("--input" "Input file" "Convert" 'string)
-     '("--output" "Output file" "Convert" 'string)
-     '("--username" "User login name" "Convert" 'string)
-     '("--endpoint" "Endpoint" "Convert" 'string))
+      "argparse"
+      "An argument parser for commandline applications."
+      "v1.0.3.0"
+      '(:argument "--list"
+        :description "List flag"
+        :group "Listing"
+        :type 'flag)
+      '(:argument "--input"
+        :description "Input file"
+        :group "Convert"
+        :type 'string)
+      '(:argument "--output"
+        :description "Output file"
+        :group "Convert"
+        :type 'string)
+      '(:argument "--username"
+        :description "User login name"
+        :group "Convert"
+        :type 'string)
+      '(:argument "--endpoint"
+        :description "Endpoint"
+        :group "Convert"
+        :type 'string))
   (handle-unknown-arguments) ;; call this function if you want to print unknown args
   (handle-missing-arguments) ;; call this function if you want to restrict args to groups
   ;; print values
@@ -39,3 +56,5 @@
   ;; not existent value
   (format t "--test ~a~%" (get-argument-value "--test")))
   
+(defun build()
+  (save-lisp-and-die "argparse.exe" :executable t :toplevel 'main :save-runtime-options t))
