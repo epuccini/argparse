@@ -10,6 +10,7 @@
   (:use "COMMON-LISP")
   (:export
    #:command-line-args
+   #:with-arguments
    #:setup-argument-parser
    #:add-argument-flag
    #:add-argument

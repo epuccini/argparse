@@ -19,15 +19,13 @@
 (defun main ()
   ;; init-parser and parse
   ;; set custom help message by setting *help-message*
-  (setup-argument-parser "argparse"
-                         "An argument parser for commandline applications."
-                         "v1.0.3.0")
-  (add-argument-flag "--list" "List flag" "Listing")
-  (add-argument "--input" "Input file" "Convert")
-  (add-argument "--output" "Output file" "Convert")
-  (add-argument "--username" "User login name" "Convert")
-  (add-argument "--endpoint" "Endpoint" "Convert")
-  (parse-arguments)
+  (with-arguments
+      "argparse" "An argument parser for commandline applications." "v1.0.3.0"
+     '("--list" "List flag" "Listing" 'flag)
+     '("--input" "Input file" "Convert" 'string)
+     '("--output" "Output file" "Convert" 'string)
+     '("--username" "User login name" "Convert" 'string)
+     '("--endpoint" "Endpoint" "Convert" 'string))
   (handle-unknown-arguments) ;; call this function if you want to print unknown args
   (handle-missing-arguments) ;; call this function if you want to restrict args to groups
   ;; print values

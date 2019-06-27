@@ -10,10 +10,10 @@
 (require 'alexandria)
 
 (defvar *help-message* nil)
-(defvar *argument-data* nil)
+(defvar *argument-data* (make-hash-table))
 (defvar *program-name* nil)
 (defvar *program-desc* nil)
-(defvar *program-version*)
+(defvar *program-version* nil)
 
 (defun command-line-args ()
   "Get command line arguments."
@@ -27,24 +27,37 @@
    nil))
 
 (defun setup-argument-parser (name desc version)
-  "Clear arrays and create new hashtable. Add program name and description. Add help argument."
-  (setf *argument-data* (make-hash-table))
+  "Clear arrays and create new hashtable. Add program name and description. 
+Add help argument."
   (setf *program-name* name)
   (setf *program-desc* desc)
   (setf *program-version* version)
-  (add-argument-flag "--help" "Shows this help message and exit" "Verbose")
-  (add-argument-flag "--version" "Show program version and exit" "Application"))
+  (add-argument "--help" "Shows this help message and exit" "Verbose" 'flag)
+  (add-argument "--version" "Show program version and exit" "Application" 'flag))
 
-(defun add-argument-flag (arg desc group)
-  "Add argument flag. Group to combine arguments 
-which should all have to be set at once."
-    (push (list arg "" desc "") (gethash group *argument-data*)))
-
-(defun add-argument (arg desc group)
+(defun add-argument (arg desc group type)
   "Add argument with one value. Group to combine arguments 
 which should all have to be set at once."
-  (push (list arg (concatenate 'string "[" (subseq arg 2 (length arg)) "]") desc "")
-        (gethash group *argument-data*)))
+  (if (equal type 'flag)
+      (push (list arg "" desc "") (gethash group *argument-data*))
+      (push (list arg (concatenate 'string "[" (subseq arg 2 (length arg)) "]") desc "")
+            (gethash group *argument-data*))))
+
+
+(defun setup-argparse (name desc version &rest args)
+  (setup-argument-parser name desc version)
+  (loop for arg in args do
+        (destructuring-bind (nm dc vl ty) arg
+         (add-argument nm dc vl ty)))
+  (parse-arguments))
+
+(defmacro with-arguments (name desc version &rest args)
+  `(progn
+     (setup-argument-parser ,name ,desc ,version)
+     ,@(loop for 'arg in args collect
+            (destructuring-bind (ag dc gp tp) arg
+               `(add-argument ,ag ,dc ,gp ,tp)))
+     (parse-arguments)))
 
 (defun print-help ()
   "Print help text if set. Otherwise auto-generated help text."
