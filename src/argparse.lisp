@@ -9,12 +9,6 @@
 (require 'cl-ppcre)
 (require 'alexandria)
 
-(defvar *help-message* nil)
-(defvar *argument-data* (make-hash-table))
-(defvar *program-name* nil)
-(defvar *program-desc* nil)
-(defvar *program-version* nil)
-
 (defun command-line-args ()
   "Get command line arguments."
   (or
@@ -29,66 +23,74 @@
 (defun setup-argument-parser (&key (name "") (description "") ( version ""))
   "Clear arrays and create new hashtable. Add program name and description. 
 Add help argument."
-  (setf *program-name* name)
-  (setf *program-desc* description)
-  (setf *program-version* version)
-  (add-argument :argument "--help"
-                :description "Shows this help message and exit"
-                :group "Verbose"
-                :type 'flag)
-  (add-argument :argument "--version"
-                :description "Show program version and exit"
-                :group "Application"
-                :type 'flag))
+  (let ((argument-data (make-hash-table)))
+    (setf (gethash "Programname" argument-data) name)
+    (setf (gethash "Programdescription" argument-data) description)
+    (setf (gethash "Programversion" argument-data) version)
+    (setf argument-data
+          (add-argument argument-data
+                        :argument "--help"
+                        :description "Shows this help message and exit"
+                        :group "Verbose"
+                        :type 'flag))
+    (setf argument-data
+          (add-argument argument-data
+                        :argument "--version"
+                        :description "Show program version and exit"
+                        :group "Application"
+                        :type 'flag))
+    argument-data))
 
-(defun add-argument (&key (argument "") (description "") (group "") (type ""))
+(defun add-argument (argument-data &key (argument "") (description "") (group "") (type ""))
   "Add argument with one value. Group to combine arguments 
 which should all have to be set at once."
   (if (equal type 'flag)
-      (push (list argument "" description "") (gethash group *argument-data*))
+      (push (list argument "" description "") (gethash group argument-data))
       (push (list argument
                   (concatenate 'string
                                "[" (subseq argument 2 (length argument)) "]") description "")
-            (gethash group *argument-data*)))
-  nil)
+            (gethash group argument-data)))
+  argument-data)
 
 (defmacro with-arguments (name description version &body args)
-  `(progn
-     (setup-argument-parser :name ,name :description ,description :version ,version)
+  `(let ((argument-data
+          (setup-argument-parser :name ,name :description ,description :version ,version)))
      ,@(loop for 'arg in args collect
-            `(add-argument :argument (getf (quote ,arg) :argument)
-                           :description (getf (quote ,arg) :description)
-                           :group (getf (quote ,arg) :group)
-                           :type (getf (quote ,arg) :type)))
-     (parse-arguments)))
+            `(setf argument-data
+                   (add-argument argument-data
+                                  :argument (getf (quote ,arg) :argument)
+                                  :description (getf (quote ,arg) :description)
+                                  :group (getf (quote ,arg) :group)
+                                  :type (getf (quote ,arg) :type))))
+     (setf argument-data (parse-arguments argument-data))
+     argument-data))
 
-(defun print-help ()
+(defun print-help (argument-data)
   "Print help text if set. Otherwise auto-generated help text."
-  (if *help-message*
-      (format t "~a~%" *help-message*)
-      (let ((keys (reverse
-                   (alexandria:hash-table-keys *argument-data*))))
+      (let ((keys (get-group-keys argument-data)))
         ;; print usage line
-        (format t "Usage: ~a " *program-name*)
+        (format t "Usage: ~a " (gethash "Programname" argument-data))
         (loop for group in keys do
-             (loop for quadruple in (gethash group *argument-data*) do
+             (loop for quadruple in (gethash group argument-data) do
                   (destructuring-bind (arg field desc value) quadruple
                     (declare (ignore desc value))
                     (if (> (length field) 0)
                         (format t "[~a ~a] " arg field)
                         (format t "[~a] " arg)))))
         ;; print group of arguments and descriptions
-        (format t "~%~%~a~%" *program-desc*)
+        (format t "~%~%~a~%" (gethash "Programdescription" argument-data))
         (loop for key in keys do
              (format t "~%~a:~%" key)
-             (loop for quadruple in (reverse (gethash key *argument-data*)) do
+             (loop for quadruple in (reverse (gethash key argument-data)) do
                   (destructuring-bind (arg field desc value) quadruple
                     (declare (ignore field value))
-                    (format t "~1,4T~a, ~A ~3,8T~A~%" (subseq arg 1 3) arg desc)))))))
+                    (format t "~1,4T~a, ~A ~3,8T~A~%" (subseq arg 1 3) arg desc))))))
 
-(defun print-version ()
+(defun print-version (argument-data)
   "Print version string."
-  (format t "~a: ~a~%" *program-name* *program-version*))
+  (format t "~a: ~a~%"
+          (gethash "Programname" argument-data)
+          (gethash "Programversion" argument-data)))
 
 (defun find-arg (arg argv)
   "Find argument and return parameter at once."
@@ -115,47 +117,56 @@ which should all have to be set at once."
                   b)) argv)
     (values flag result)))
 
-(defun parse-arguments ()
+(defun get-group-keys (argument-data)
+  (let ((keys (reverse (remove-if #'(lambda (key)
+                                   (equal (subseq key 0 7) "Program"))
+                               (alexandria:hash-table-keys argument-data)))))
+    keys))
+
+(defun parse-arguments (argument-data)
   "Parse all given arguments in command-line."
   (handler-case
       (let ((cmd-array (command-line-args))
-            (keys (alexandria:hash-table-keys *argument-data*)))
+            (keys (get-group-keys argument-data)))
         ;; parse
         (loop for group in keys do
              (mapcar #'(lambda (lst)
                          (progn
-                           (setf (gethash group *argument-data*)
+                           (setf (gethash group argument-data)
                                  (remove-if #'(lambda (a) (equal a lst))
-                                            (gethash group *argument-data*)))
+                                            (gethash group argument-data)))
                            (destructuring-bind (a f d v) lst
                              (declare (ignore d v))
                              (multiple-value-bind (flag value) (find-arg a cmd-array)
                                (if (equal f "")
                                    (setf (nth 3 lst) flag)
                                    (setf (nth 3 lst) value))
-                               (push lst (gethash group *argument-data*))))))
-             (gethash group *argument-data*)))
-        (if (get-argument-value "--help")
+                               (push lst (gethash group argument-data))))))
+             (gethash group argument-data)))
+        (if (get-argument-value argument-data "--help")
             (progn
-              (print-help)
+              (print-help argument-data)
               (exit)))
-        (if (get-argument-value "--version")
+        (if (get-argument-value argument-data "--version")
             (progn
-              (print-version)
-              (exit))))
+              (print-version argument-data)
+              (exit)))
+        argument-data)
   (error (condition)
          (format t "Error while parsing arguments, condition ~a~%" condition))))
 
-(defun handle-unknown-arguments ()
+(defun handle-unknown-arguments (argument-data)
   "Print unknown or wrong arguments in commandline. Exit on error."
   (let ((cmd-arg (map 'list #'identity (command-line-args)))
-        (keys (alexandria:hash-table-keys *argument-data*)))
+        (keys (get-group-keys argument-data)))
     ;; remove program-name - with .exe on windows
     #+Windows
     (setf cmd-arg
           (remove-if #'(lambda (val)
-                         (equal val (concatenate 'string *program-name* ".exe"))) cmd-arg))
-    (setf cmd-arg (remove-if #'(lambda (val) (equal val *program-name*)) cmd-arg))
+                         (equal val (concatenate 'string
+                                                 (gethash "Programname" argument-data) ".exe"))) cmd-arg))
+    (setf cmd-arg (remove-if #'(lambda (val)
+                                 (equal val (gethash "Programname" argument-data))) cmd-arg))
     ;; remove existing args - the left ones are unknown
     (loop for group in keys do
          (mapcar #'(lambda (lst)
@@ -170,8 +181,8 @@ which should all have to be set at once."
                                             (equal val short-arg)) cmd-arg))
                          (setf cmd-arg (remove-if
                                         #'(lambda (val)
-                                            (equal val (get-argument-value arg))) cmd-arg)))))
-                 (gethash group *argument-data*)))
+                                            (equal val (get-argument-value argument-data arg))) cmd-arg)))))
+                 (gethash group argument-data)))
     (if (> (length cmd-arg) 0)
         (progn
           (format t "~a argument(s) left~%" (length cmd-arg))
@@ -179,22 +190,22 @@ which should all have to be set at once."
           (terpri)
           (exit)))))
 
-(defun identify-group (arg)
+(defun identify-group (argument-data arg)
   "Check which argument belongs to group."
-  (loop for group in (alexandria:hash-table-keys *argument-data*) do
+  (loop for group in (get-group-keys argument-data) do
        (mapcar #'(lambda (lst)
                    (destructuring-bind (a f d v) lst
                      (declare (ignore f d v))
                      (if (or (equal a arg)
                              (equal (subseq a 1 3) arg))
                          (return group))))
-               (gethash group *argument-data*))))
+               (gethash group argument-data))))
          
-(defun handle-missing-arguments ()
+(defun handle-missing-arguments (argument-data)
   "Check for missing arguments. Print message and exit."
   (let* ((first-arg (cadr (command-line-args)))
          (cmd-args (cdr (command-line-args)))
-         (group (identify-group first-arg))
+         (group (identify-group argument-data first-arg))
          (missing-args '())
          (group-args nil))
          (mapcar #'(lambda (lst)
@@ -204,13 +215,13 @@ which should all have to be set at once."
                            (push a group-args))
                        (if  (typep v 'sequence) 
                            (push v group-args))))
-                 (gethash group *argument-data*))
+                 (gethash group argument-data))
          (setf missing-args
                (remove-if #'(lambda (e)
                               (loop for arg in cmd-args do
                                    (if (or
                                         (equal e arg)
-                                        (equal e (get-full-argument arg)))
+                                        (equal e (get-full-argument argument-data arg)))
                                        (return t))))
                           group-args))
     (if (> (length missing-args) 0)
@@ -218,9 +229,9 @@ which should all have to be set at once."
           (format t "Missing arguments: ~{~a ~}~%" (reverse missing-args))
           (exit)))))
 
-(defun get-argument-value (arg)
+(defun get-argument-value (argument-data arg)
   "Get hash argument value."
-  (let ((keys (alexandria:hash-table-keys *argument-data*)))
+  (let ((keys (get-group-keys argument-data)))
     ;; parse
     (loop for group in keys do
          (mapcar #'(lambda (lst)
@@ -228,12 +239,12 @@ which should all have to be set at once."
                        (declare (ignore f d))
                        (if (equal a arg)
                            (return v))))
-                 (gethash group *argument-data*)))))
+                 (gethash group argument-data)))))
 
 
-(defun get-full-argument (short-arg)
+(defun get-full-argument (argument-data short-arg)
   "Get hash argument from shortcut arg."
-  (let ((keys (alexandria:hash-table-keys *argument-data*)))
+  (let ((keys (get-group-keys argument-data)))
     ;; parse
     (loop for group in keys do
          (mapcar #'(lambda (lst)
@@ -241,7 +252,7 @@ which should all have to be set at once."
                        (declare (ignore f d v))
                        (if (equal (subseq a 1 3) short-arg)
                            (return a))))
-                 (gethash group *argument-data*)))))
+                 (gethash group argument-data)))))
 
 (defun number-of-args ()
   "Get number of arguments from commandline."
