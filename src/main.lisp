@@ -1,13 +1,16 @@
 ;;; -----------------------------------------------------
 ;;; main
 ;;; -----------------------------------------------------
-;;; File:     argparse/src/main.lisp
-;;; Date:     09:18:24 of Tuesday, 6/18/2019 (GMT+1)
-;;; Author:   Edward Puccini
+;;; @File:     argparse/src/main.lisp
+;;; @Date:     09:18:24 of Tuesday, 6/18/2019 (GMT+1)
+;;; @Author:   Edward Puccini
 ;;; -----------------------------------------------------
+
+(use-package :argparse)
 
 (require 'argparse)
 (require 'asdf)
+(require 'clod)
 
 #+(or cmu sbcl)
 (setf *load-verbose* nil
@@ -20,10 +23,10 @@
   ;; init-parser and parse
   ;; set custom help message by setting *help-message*
   (let ((argument-data
-         (with-arguments
-             "argparse"
+         (with-arguments-hash-table
+           "argparse"
            "An argument parser for commandline applications."
-           "v1.0.3.0"
+           "v1.0.4.0"
            '(:argument "--list"
              :description "List flag"
              :group "Listing"
@@ -57,5 +60,7 @@
     ;; not existent value
     (format t "--test ~a~%" (get-argument-value argument-data "--test"))))
   
-(defun build()
+(defun build ()
+  "Save executable with necessary options."
   (save-lisp-and-die "argparse.exe" :executable t :toplevel 'main :save-runtime-options t))
+

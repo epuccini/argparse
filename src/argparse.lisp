@@ -1,16 +1,20 @@
 ;;; -----------------------------------------------------
 ;;; argparse - Argument parser
 ;;; -----------------------------------------------------
-;;; File:     argparse/src/argparse.lisp
-;;; Date:     09:18:24 of Tuesday, 6/18/2019 (GMT+1)
-;;; Author:   Edward Puccini
+;;; @File:     argparse/src/argparse.lisp
+;;; @Date:     09:18:24 of Tuesday, 6/18/2019 (GMT+1)
+;;; @Author:   Edward Puccini
 ;;; -----------------------------------------------------
+
+(in-package :argparse)
 
 (require 'cl-ppcre)
 (require 'alexandria)
 
 (defun command-line-args ()
-  "Get command line arguments."
+  "Get command line arguments.
+*Returns
+- Array with command-line arguments with executable as first element."
   (or
    #+ECL si:*command-args*
    #+SBCL sb-ext:*posix-argv*
@@ -22,7 +26,13 @@
 
 (defun setup-argument-parser (&key (name "") (description "") ( version ""))
   "Clear arrays and create new hashtable. Add program name and description. 
-Add help argument."
+Add --help and --version argument.
+*Arguments
+- NAME :: Program executable name (without extension).
+- DESCRIPTION :: Program description.
+- VERSION :: Program executable version-number.
+*Returns
+- created Program data hashtable."
   (let ((argument-data (make-hash-table)))
     (setf (gethash "Programname" argument-data) name)
     (setf (gethash "Programdescription" argument-data) description)
@@ -43,7 +53,14 @@ Add help argument."
 
 (defun add-argument (argument-data &key (argument "") (description "") (group "") (type ""))
   "Add argument with one value. Group to combine arguments 
-which should all have to be set at once."
+which should all have to be set at once.
+*Arguments
+- ARGUMENT :: Unix like option full name string. Shortcut will be from --XXXXX to -X
+- DESCRITPTION :: Option description string.
+- GROUP :: Group name string
+- TYPE :: Types: 'FLAG and 'STRING
+*Returns
+- modified Program data hashtable"
   (if (equal type 'flag)
       (push (list argument "" description "") (gethash group argument-data))
       (push (list argument
@@ -52,10 +69,18 @@ which should all have to be set at once."
             (gethash group argument-data)))
   argument-data)
 
-(defmacro with-arguments (name description version &body args)
+(defmacro with-arguments-hash-table (name description version &body arguments)
+  "Compact argument-parser definition construct.
+*Arguments
+- NAME :: Application name string
+- DESCRIPTION :: Application description string
+- VERSION :: Application version string
+- ARGUMENTS :: Option definition lists with parameter in the form of ADD-ARGUMENT
+*Returns
+- modified Program data hashtable"
   `(let ((argument-data
           (setup-argument-parser :name ,name :description ,description :version ,version)))
-     ,@(loop for 'arg in args collect
+     ,@(loop for 'arg in arguments collect
             `(setf argument-data
                    (add-argument argument-data
                                   :argument (getf (quote ,arg) :argument)
@@ -66,7 +91,9 @@ which should all have to be set at once."
      argument-data))
 
 (defun print-help (argument-data)
-  "Print help text if set. Otherwise auto-generated help text."
+  "Print help text if set. Otherwise auto-generated help text.
+*Arguments
+ARGUMENT-DATA :: Program data hashtable"
       (let ((keys (get-group-keys argument-data)))
         ;; print usage line
         (format t "Usage: ~a " (gethash "Programname" argument-data))
@@ -87,13 +114,20 @@ which should all have to be set at once."
                     (format t "~1,4T~a, ~A ~3,8T~A~%" (subseq arg 1 3) arg desc))))))
 
 (defun print-version (argument-data)
-  "Print version string."
+  "Print version string.
+*Arguments
+ARGUMENT-DATA :: Program data hashtable"
   (format t "~a: ~a~%"
           (gethash "Programname" argument-data)
           (gethash "Programversion" argument-data)))
 
-(defun find-arg (arg argv)
-  "Find argument and return parameter at once."
+(defun find-argument (arg argv)
+  "Find argument and return parameter at once.
+*arguments
+- ARG :: Argument-string --XXXXXX
+- ARGV :: Command-line argument array
+*Returns
+- T for flags, value for options"
   (let ((result nil)
         (flag nil)
         (short-arg (subseq arg 1 3)))
@@ -118,13 +152,22 @@ which should all have to be set at once."
     (values flag result)))
 
 (defun get-group-keys (argument-data)
+  "Get all group keys from program data hashtable.
+*Arguments
+- ARGUMENT-DATA :: Program data hashtable.
+*Returns
+- Group key array"
   (let ((keys (reverse (remove-if #'(lambda (key)
                                    (equal (subseq key 0 7) "Program"))
                                (alexandria:hash-table-keys argument-data)))))
     keys))
 
 (defun parse-arguments (argument-data)
-  "Parse all given arguments in command-line."
+  "Parse all given arguments in command-line.
+*Arguments
+- ARGUMENT-DATA :: Program data hashtable.
+*Returns
+- modified Program data hashtable"
   (handler-case
       (let ((cmd-array (command-line-args))
             (keys (get-group-keys argument-data)))
@@ -137,7 +180,7 @@ which should all have to be set at once."
                                             (gethash group argument-data)))
                            (destructuring-bind (a f d v) lst
                              (declare (ignore d v))
-                             (multiple-value-bind (flag value) (find-arg a cmd-array)
+                             (multiple-value-bind (flag value) (find-argument a cmd-array)
                                (if (equal f "")
                                    (setf (nth 3 lst) flag)
                                    (setf (nth 3 lst) value))
@@ -146,17 +189,19 @@ which should all have to be set at once."
         (if (get-argument-value argument-data "--help")
             (progn
               (print-help argument-data)
-              (exit)))
+              (sb-ext:exit)))
         (if (get-argument-value argument-data "--version")
             (progn
               (print-version argument-data)
-              (exit)))
+              (sb-ext:exit)))
         argument-data)
   (error (condition)
          (format t "Error while parsing arguments, condition ~a~%" condition))))
 
 (defun handle-unknown-arguments (argument-data)
-  "Print unknown or wrong arguments in commandline. Exit on error."
+  "Print unknown or wrong arguments in commandline. Exit on error.
+*Arguments
+- ARGUMENT-DATA :: Program data hashtable."
   (let ((cmd-arg (map 'list #'identity (command-line-args)))
         (keys (get-group-keys argument-data)))
     ;; remove program-name - with .exe on windows
@@ -188,10 +233,15 @@ which should all have to be set at once."
           (format t "~a argument(s) left~%" (length cmd-arg))
           (format t "Wrong or unknown arguments: ~{~a ~}~%" cmd-arg)
           (terpri)
-          (exit)))))
+          (sb-ext:exit)))))
 
 (defun identify-group (argument-data arg)
-  "Check which argument belongs to group."
+  "Check which argument belongs to group.
+*Arguments
+- ARGUMENT-DATA :: Program data hashtable.
+- ARG :: argument string
+*Returns
+- Group string"
   (loop for group in (get-group-keys argument-data) do
        (mapcar #'(lambda (lst)
                    (destructuring-bind (a f d v) lst
@@ -202,7 +252,9 @@ which should all have to be set at once."
                (gethash group argument-data))))
          
 (defun handle-missing-arguments (argument-data)
-  "Check for missing arguments. Print message and exit."
+  "Check for missing arguments. Print message and exit.
+*Arguments
+- ARGUMENT-DATA :: Program data hashtable."
   (let* ((first-arg (cadr (command-line-args)))
          (cmd-args (cdr (command-line-args)))
          (group (identify-group argument-data first-arg))
@@ -227,10 +279,15 @@ which should all have to be set at once."
     (if (> (length missing-args) 0)
         (progn
           (format t "Missing arguments: ~{~a ~}~%" (reverse missing-args))
-          (exit)))))
+          (sb-ext:exit)))))
 
 (defun get-argument-value (argument-data arg)
-  "Get hash argument value."
+  "Get hash argument value.
+*Arguments
+- ARGUMENT-DATA :: Program data hashtable.
+- ARG :: Argument string
+*Returns
+- Value string"
   (let ((keys (get-group-keys argument-data)))
     ;; parse
     (loop for group in keys do
@@ -243,7 +300,12 @@ which should all have to be set at once."
 
 
 (defun get-full-argument (argument-data short-arg)
-  "Get hash argument from shortcut arg."
+  "Get hash argument from shortcut arg.
+*Arguments
+- ARGUMENT-DATA :: Program data hashtable.
+- SHORT-ARG :: Shortcut string of option/flag
+*Returns
+- Argument string"
   (let ((keys (get-group-keys argument-data)))
     ;; parse
     (loop for group in keys do
@@ -255,6 +317,8 @@ which should all have to be set at once."
                  (gethash group argument-data)))))
 
 (defun number-of-args ()
-  "Get number of arguments from commandline."
+  "Get number of arguments from commandline.
+*Returns
+- Length of command-line array int"
   (let ((cmd-array (command-line-args)))
     (length cmd-array)))

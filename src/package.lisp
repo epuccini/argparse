@@ -7,10 +7,15 @@
 ;;; -----------------------------------------------------
 
 (defpackage :argparse
-  (:use "COMMON-LISP")
+  (:documentation "An argument parser for commandline evaluation.")
+  (:use #:common-lisp)
+  (:shadow
+   #:get-argument-value
+   #:handle-unknown-arguments
+   #:handle-missing-arguments)
   (:export
    #:command-line-args
-   #:with-arguments
+   #:with-arguments-hash-table
    #:setup-argument-parser
    #:add-argument-flag
    #:add-argument
@@ -19,6 +24,8 @@
    #:get-argument-value
    #:handle-unknown-arguments
    #:handle-missing-arguments
-   #:number-of-args
-   #:*help-message*))
+   #:build)
+  (:intern
+   #:identify-group
+   #:find-argument))
 
