@@ -6,11 +6,8 @@
 ;;; @Author:   Edward Puccini
 ;;; -----------------------------------------------------
 
-(use-package :argparse)
-
 (require 'argparse)
 (require 'asdf)
-(require 'clod)
 
 #+(or cmu sbcl)
 (setf *load-verbose* nil
@@ -23,7 +20,7 @@
   ;; init-parser and parse
   ;; set custom help message by setting *help-message*
   (let ((argument-data
-         (with-arguments-hash-table
+         (argparse:with-arguments-hash-table
            "argparse"
            "An argument parser for commandline applications."
            "v1.0.4.0"

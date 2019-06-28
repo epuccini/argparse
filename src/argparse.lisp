@@ -1,14 +1,13 @@
 ;;; -----------------------------------------------------
 ;;; argparse - Argument parser
 ;;; -----------------------------------------------------
-;;; @File:     argparse/src/argparse.lisp
-;;; @Date:     09:18:24 of Tuesday, 6/18/2019 (GMT+1)
-;;; @Author:   Edward Puccini
+;;; File:     argparse/src/argparse.lisp
+;;; Date:     09:18:24 of Tuesday, 6/18/2019 (GMT+1)
+;;; Author:   Edward Puccini
 ;;; -----------------------------------------------------
 
 (in-package :argparse)
 
-(require 'cl-ppcre)
 (require 'alexandria)
 
 (defun command-line-args ()
@@ -68,27 +67,6 @@ which should all have to be set at once.
                                "[" (subseq argument 2 (length argument)) "]") description "")
             (gethash group argument-data)))
   argument-data)
-
-(defmacro with-arguments-hash-table (name description version &body arguments)
-  "Compact argument-parser definition construct.
-*Arguments
-- NAME :: Application name string
-- DESCRIPTION :: Application description string
-- VERSION :: Application version string
-- ARGUMENTS :: Option definition lists with parameter in the form of ADD-ARGUMENT
-*Returns
-- modified Program data hashtable"
-  `(let ((argument-data
-          (setup-argument-parser :name ,name :description ,description :version ,version)))
-     ,@(loop for 'arg in arguments collect
-            `(setf argument-data
-                   (add-argument argument-data
-                                  :argument (getf (quote ,arg) :argument)
-                                  :description (getf (quote ,arg) :description)
-                                  :group (getf (quote ,arg) :group)
-                                  :type (getf (quote ,arg) :type))))
-     (setf argument-data (parse-arguments argument-data))
-     argument-data))
 
 (defun print-help (argument-data)
   "Print help text if set. Otherwise auto-generated help text.
@@ -322,3 +300,24 @@ ARGUMENT-DATA :: Program data hashtable"
 - Length of command-line array int"
   (let ((cmd-array (command-line-args)))
     (length cmd-array)))
+
+(defmacro with-arguments-hash-table (name description version &body arguments)
+  "Compact argument-parser definition construct.
+*Arguments
+- NAME :: Application name string
+- DESCRIPTION :: Application description string
+- VERSION :: Application version string
+- ARGUMENTS :: Option definition lists with parameter in the form of ADD-ARGUMENT
+*Returns
+- modified Program data hashtable"
+  `(let ((argument-data
+          (setup-argument-parser :name ,name :description ,description :version ,version)))
+     ,@(loop for 'arg in arguments collect
+            `(setf argument-data
+                   (add-argument argument-data
+                                  :argument (getf (quote ,arg) :argument)
+                                  :description (getf (quote ,arg) :description)
+                                  :group (getf (quote ,arg) :group)
+                                  :type (getf (quote ,arg) :type))))
+     (setf argument-data (parse-arguments argument-data))
+     argument-data))
