@@ -5,8 +5,9 @@
 ;;; @Date:     09:18:24 of Tuesday, 6/18/2019 (GMT+1)
 ;;; @Author:   Edward Puccini
 ;;; -----------------------------------------------------
+(eval-when (:load-toplevel :compile-toplevel :execute)
+  (use-package :argparse))
 
-(require 'argparse)
 (require 'asdf)
 
 #+(or cmu sbcl)
@@ -20,7 +21,7 @@
   ;; init-parser and parse
   ;; set custom help message by setting *help-message*
   (let ((argument-data
-         (argparse:with-arguments-hash-table
+         (with-arguments-hash-table
            "argparse"
            "An argument parser for commandline applications."
            "v1.0.4.0"

@@ -6,10 +6,10 @@
 ;;; Author:   Edward Puccini
 ;;; -----------------------------------------------------
 (in-package :cl-user)
- 
+
 (defpackage :argparse
   (:documentation "An argument parser for commandline evaluation.")
-  (:use #:common-lisp #:alexandria)
+  (:use #:cl #:alexandria)
   (:export
    #:with-arguments-hash-table
    #:command-line-args
