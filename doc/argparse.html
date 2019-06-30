@@ -1,0 +1,96 @@
+<head><title>ARGPARSE</title></head><body><h1>ARGPARSE - Package documentation</h1><br>
+<div class='header'><h1>Functions</h1></div><br><div class='group'>
+<div class='function'><b>Function</b>: NUMBER-OF-ARGS</div>
+<div class='documentation'><b>Documentation</b>: Get number of arguments from commandline.
+*Returns
+- Length of command-line array int</div><br>
+<div class='function'><b>Function</b>: HANDLE-UNKNOWN-ARGUMENTS</div>
+<div class='documentation'><b>Documentation</b>: Print unknown or wrong arguments in commandline. Exit on error.
+*Arguments
+- ARGUMENT-DATA :: Program data hashtable.</div><br>
+<div class='function'><b>Function</b>: PARSE-ARGUMENTS</div>
+<div class='documentation'><b>Documentation</b>: Parse all given arguments in command-line.
+*Arguments
+- ARGUMENT-DATA :: Program data hashtable.
+*Returns
+- modified Program data hashtable</div><br>
+<div class='function'><b>Function</b>: WITH-ARGUMENTS-HASH-TABLE</div>
+<div class='documentation'><b>Documentation</b>: Compact argument-parser definition construct.
+*Arguments
+- NAME :: Application name string
+- DESCRIPTION :: Application description string
+- VERSION :: Application version string
+- ARGUMENTS :: Option definition lists with parameter in the form of ADD-ARGUMENT
+*Returns
+- modified Program data hashtable</div><br>
+<div class='function'><b>Function</b>: FIND-ARGUMENT</div>
+<div class='documentation'><b>Documentation</b>: Find argument and return parameter at once.
+*arguments
+- ARG :: Argument-string --XXXXXX
+- ARGV :: Command-line argument array
+*Returns
+- T for flags, value for options</div><br>
+<div class='function'><b>Function</b>: SETUP-ARGUMENT-PARSER</div>
+<div class='documentation'><b>Documentation</b>: Clear arrays and create new hashtable. Add program name and description. 
+Add --help and --version argument.
+*Arguments
+- NAME :: Program executable name (without extension).
+- DESCRIPTION :: Program description.
+- VERSION :: Program executable version-number.
+*Returns
+- created Program data hashtable.</div><br>
+<div class='function'><b>Function</b>: PRINT-HELP</div>
+<div class='documentation'><b>Documentation</b>: Print help text if set. Otherwise auto-generated help text.
+*Arguments
+ARGUMENT-DATA :: Program data hashtable</div><br>
+<div class='function'><b>Function</b>: IDENTIFY-GROUP</div>
+<div class='documentation'><b>Documentation</b>: Check which argument belongs to group.
+*Arguments
+- ARGUMENT-DATA :: Program data hashtable.
+- ARG :: argument string
+*Returns
+- Group string</div><br>
+<div class='function'><b>Function</b>: HANDLE-MISSING-ARGUMENTS</div>
+<div class='documentation'><b>Documentation</b>: Check for missing arguments. Print message and exit.
+*Arguments
+- ARGUMENT-DATA :: Program data hashtable.</div><br>
+<div class='function'><b>Function</b>: GET-GROUP-KEYS</div>
+<div class='documentation'><b>Documentation</b>: Get all group keys from program data hashtable.
+*Arguments
+- ARGUMENT-DATA :: Program data hashtable.
+*Returns
+- Group key array</div><br>
+<div class='function'><b>Function</b>: ADD-ARGUMENT</div>
+<div class='documentation'><b>Documentation</b>: Add argument with one value. Group to combine arguments 
+which should all have to be set at once.
+*Arguments
+- ARGUMENT :: Unix like option full name string. Shortcut will be from --XXXXX to -X
+- DESCRITPTION :: Option description string.
+- GROUP :: Group name string
+- TYPE :: Types: 'FLAG and 'STRING
+*Returns
+- modified Program data hashtable</div><br>
+<div class='function'><b>Function</b>: PRINT-VERSION</div>
+<div class='documentation'><b>Documentation</b>: Print version string.
+*Arguments
+ARGUMENT-DATA :: Program data hashtable</div><br>
+<div class='function'><b>Function</b>: GET-ARGUMENT-VALUE</div>
+<div class='documentation'><b>Documentation</b>: Get hash argument value.
+*Arguments
+- ARGUMENT-DATA :: Program data hashtable.
+- ARG :: Argument string
+*Returns
+- Value string</div><br>
+<div class='function'><b>Function</b>: COMMAND-LINE-ARGS</div>
+<div class='documentation'><b>Documentation</b>: Get command line arguments.
+*Returns
+- Array with command-line arguments with executable as first element.</div><br>
+<div class='function'><b>Function</b>: GET-FULL-ARGUMENT</div>
+<div class='documentation'><b>Documentation</b>: Get hash argument from shortcut arg.
+*Arguments
+- ARGUMENT-DATA :: Program data hashtable.
+- SHORT-ARG :: Shortcut string of option/flag
+*Returns
+- Argument string</div><br>
+</div><div class='footer'>Functions End</div><br><br>
+ARGPARSE - Package End<br></body>
