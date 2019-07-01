@@ -10,6 +10,8 @@
 
 (require 'alexandria)
 
+(defvar *test* nil "Test variable")
+
 (defun command-line-args ()
   "Get command line arguments.
 *Returns
