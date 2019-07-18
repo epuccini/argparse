@@ -59,5 +59,5 @@
   
 (defun build ()
   "Save executable with necessary options."
-  (save-lisp-and-die "argparse.exe" :executable t :toplevel 'main :save-runtime-options t))
+  (save-lisp-and-die "argparse" :executable t :toplevel 'main :save-runtime-options t))
 
