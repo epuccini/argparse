@@ -9,7 +9,7 @@
 To start arparse-example application:<br><br>
 
 	(asdf:load-system :argparse-app)
-  (main)
+  	(main)
   
 This is the application example:
 
