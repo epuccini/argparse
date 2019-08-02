@@ -86,7 +86,7 @@ ARGUMENT-DATA :: Program data hashtable"
         (format t "~%~%~a~%" (gethash "Programdescription" argument-data))
         (loop for key in keys do
              (format t "~%~a:~%" key)
-             (loop for quadruple in (reverse (gethash key argument-data)) do
+             (loop for quadruple in (gethash key argument-data) do
                   (destructuring-bind (arg field desc value) quadruple
                     (declare (ignore field value))
                     (format t "~1,4T~a, ~A ~3,8T~A~%" (subseq arg 1 3) arg desc))))))
