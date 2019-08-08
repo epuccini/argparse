@@ -188,6 +188,17 @@ ARGUMENT-DATA :: Program data hashtable"
           (remove-if #'(lambda (val)
                          (equal val (concatenate 'string
                                                  (gethash "Programname" argument-data) ".exe"))) cmd-arg))
+    #+linux
+    (setf cmd-arg
+          (remove-if #'(lambda (val)
+                         (equal val (concatenate 'string
+                                                 "./"
+                                                 (gethash "Programname" argument-data)))) cmd-arg))    #+darwin
+    (setf cmd-arg
+          (remove-if #'(lambda (val)
+                         (equal val (concatenate 'string
+                                                 "./"
+                                                 (gethash "Programname" argument-data)))) cmd-arg))
     (setf cmd-arg (remove-if #'(lambda (val)
                                  (equal val (gethash "Programname" argument-data))) cmd-arg))
     ;; remove existing args - the left ones are unknown
