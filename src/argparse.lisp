@@ -183,24 +183,7 @@ ARGUMENT-DATA :: Program data hashtable"
   (let ((cmd-arg (map 'list #'identity (command-line-args)))
         (keys (get-group-keys argument-data)))
     ;; remove program-name - with .exe on windows
-    #+Windows
-    (setf cmd-arg
-          (remove-if #'(lambda (val)
-                         (equal val (concatenate 'string
-                                                 (gethash "Programname" argument-data) ".exe"))) cmd-arg))
-    #+linux
-    (setf cmd-arg
-          (remove-if #'(lambda (val)
-                         (equal val (concatenate 'string
-                                                 "./"
-                                                 (gethash "Programname" argument-data)))) cmd-arg))    #+darwin
-    (setf cmd-arg
-          (remove-if #'(lambda (val)
-                         (equal val (concatenate 'string
-                                                 "./"
-                                                 (gethash "Programname" argument-data)))) cmd-arg))
-    (setf cmd-arg (remove-if #'(lambda (val)
-                                 (equal val (gethash "Programname" argument-data))) cmd-arg))
+    (setf cmd-arg (cdr cmd-arg))
     ;; remove existing args - the left ones are unknown
     (loop for group in keys do
          (mapcar #'(lambda (lst)
