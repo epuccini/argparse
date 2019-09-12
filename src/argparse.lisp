@@ -10,6 +10,8 @@
 
 (require 'alexandria)
 
+(defvar *keys* nil)
+
 (defun command-line-args ()
   "Get command line arguments.
 *Returns
@@ -72,7 +74,7 @@ which should all have to be set at once.
   "Print help text if set. Otherwise auto-generated help text.
 *Arguments
 ARGUMENT-DATA :: Program data hashtable"
-      (let ((keys (get-group-keys argument-data)))
+      (let ((keys *keys*))
         ;; print usage line
         (format t "Usage: ~a " (gethash "Programname" argument-data))
         (loop for group in keys do
@@ -181,7 +183,7 @@ ARGUMENT-DATA :: Program data hashtable"
 *Arguments
 - ARGUMENT-DATA :: Program data hashtable."
   (let ((cmd-arg (map 'list #'identity (command-line-args)))
-        (keys (get-group-keys argument-data)))
+        (keys *keys*))
     ;; remove program-name - with .exe on windows
     (setf cmd-arg (cdr cmd-arg))
     ;; remove existing args - the left ones are unknown
@@ -260,14 +262,14 @@ ARGUMENT-DATA :: Program data hashtable"
 - ARG :: Argument string
 *Returns
 - Value string"
-  (let ((keys (get-group-keys argument-data)))
+  (let ((keys *keys*))
     ;; parse
     (loop for group in keys do
          (mapcar #'(lambda (lst)
                      (destructuring-bind (a f d v) lst
                        (declare (ignore f d))
                        (if (equal a arg)
-                           (return v))))
+                           (return-from get-argument-value v))))
                  (gethash group argument-data)))))
 
 
@@ -314,4 +316,5 @@ ARGUMENT-DATA :: Program data hashtable"
                                   :group (getf (quote ,arg) :group)
                                   :type (getf (quote ,arg) :type))))
      (setf argument-data (parse-arguments argument-data))
+     (setf *keys* (get-group-keys argument-data))
      argument-data))
